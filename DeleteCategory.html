@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<script>
+  function onSuccess() {
+    google.script.host.close();
+  }
+
+  function onFormSubmit() {
+    // TODO use error handling to make troubleshooting easier.
+    // see .withFailureHandler(function(e){console.error(e)})
+    const form = document.getElementById('form');
+
+    if (form.checkValidity() == true) {
+
+      document.getElementById("DeleteCategory").readOnly=true;
+      document.getElementById("submitbutton").disabled=true;
+      document.getElementById("status").hidden=false;
+
+
+      console.debug(form);
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .handleDeleteCategory(form);
+      } else {
+        form.reportValidity();
+      }
+  }
+
+  function populateSelectList( id, selectList ) {
+    // populate DeleteCategory select
+    console.debug("Adding options into " + id + ": " + selectList);
+    var select = document.getElementById(id);
+    for( var i=0; i<selectList.length; i++ ) {
+      var option = document.createElement("option");
+      option.value = selectList[i][0]
+      option.text = selectList[i][1];
+      select.add(option);
+    }
+  }
+
+  function setup() {
+
+    // Populate list of properties
+    google.script.run.withSuccessHandler( function(list){populateSelectList("DeleteCategory",list); } ).getCategoriesList();
+
+    // Form submit action
+    const button = document.getElementById('submitbutton');
+    button.addEventListener("click", onFormSubmit)
+
+
+  }
+</script>
+
+<body onload="setup()">
+  <p>
+    There will be a slight delay on submission.
+  </p>
+
+  <form id="form">
+
+    <div>
+      <label for="DeleteCategory">Category to delete:<br />
+        <select id="DeleteCategory" name="DeleteCategory" id="DeleteCategory">
+        </select>
+      </label>
+    </div>
+  </form>
+  <button id="submitbutton">Submit</button>
+  <span id="status" hidden="hidden">Loading, please wait...</span>
+</body>
+
+</html>

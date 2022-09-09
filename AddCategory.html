@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<script>
+  function onSuccess() {
+    google.script.host.close();
+  }
+
+  function onFormSubmit() {
+    // TODO use error handling to make troubleshooting easier.
+    // see .withFailureHandler(function(e){console.error(e)})
+    const form = document.getElementById('form');
+
+    if (form.checkValidity() == true) {
+
+      document.getElementById("AddAfter").readOnly=true;
+      document.getElementById("NewCategorySymbol").readOnly=true;
+      document.getElementById("NewCategoryName").readOnly=true;
+      document.getElementById("NewCategoryAmount").readOnly=true;
+      document.getElementById("NewCategoryMonthlyAmount").readOnly=true;
+      document.getElementById("NewEmergencyFund").readOnly=true;
+      document.getElementById("submitbutton").disabled=true;
+      document.getElementById("status").hidden=false;
+
+
+      // TODO Ensure category does not already exist
+      console.debug(form);
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .handleAddCategory(form);
+      } else {
+        form.reportValidity();
+      }
+  }
+
+  function populateSelectList( id, selectList ) {
+    // populate AddAfter select
+    console.debug("Adding options into " + id + ": " + selectList);
+    var select = document.getElementById(id);
+    for( var i=0; i<selectList.length; i++ ) {
+      var option = document.createElement("option");
+      option.value = selectList[i][0]
+      option.text = selectList[i][1];
+      select.add(option);
+    }
+  }
+
+  function checkNewCategoryName( input ) {
+    var categoriesDropdown = document.getElementById("AddAfter");
+    var categorieValues = Array.from( categoriesDropdown.options ).map( (opt) => opt.value ) ;
+    var value = input.value;
+    if ( value.length > 0 ) {
+      console.debug("Validating category name '" + value + "' against list of categories.");
+      var alreadyExists = categorieValues.includes( value );
+      if ( alreadyExists ){
+        console.debug("Category  '" + value + "' already exists." );
+        input.setCustomValidity('"' + value + '" already exists.');
+        return false;
+      }
+      input.setCustomValidity('');
+      return true;
+
+    } else {
+      input.setCustomValidity('"' + input.value + '" is mandatory.');
+      return false;
+    }
+  }
+
+  function setup() {
+
+    // Populate list of properties
+    google.script.run.withSuccessHandler( function(list){populateSelectList("AddAfter",list); } ).getCategoriesList();
+    google.script.run.withSuccessHandler( function(list){populateSelectList("NewCategorySymbol",list); } ).getCategoriesTypesList();
+    google.script.run.withSuccessHandler( function(list){populateSelectList("NewEmergencyFund",list); } ).getEmergencyFundTypesList();
+
+    // Form submit action
+    const button = document.getElementById('submitbutton');
+    button.addEventListener("click", onFormSubmit)
+
+
+  }
+</script>
+
+<body onload="setup()">
+  <p>
+    There will be a slight delay on submission.
+  </p>
+
+  <form id="form">
+
+    <div>
+      <label for="AddAfter">Add item after:<br />
+        <select id="AddAfter" name="AddAfter" id="AddAfter">
+          <option value="topoflist">Top position</option>
+        </select>
+      </label>
+    </div>
+    <div>
+      <label NewCategorySymbol="">New category symbol:<br />
+        <select id="NewCategorySymbol" name="NewCategorySymbol" id="NewCategorySymbol">
+        </select>
+      </label>
+    </div>
+    <div>
+      <label for="NewCategoryName">New category name:<br />
+        <input id="NewCategoryName" name="NewCategoryName" required="required" minlength="1" oninput="checkNewCategoryName(this)">
+      </label>
+    </div>
+        <div>
+      <label for="NewCategoryAmount">Category target:<br />
+        <input id="NewCategoryAmount" name="NewCategoryAmount"  type="number" min="0" value="0" required />
+      </label>
+    </div>
+        <div>
+      <label for="NewCategoryMonthlyAmount">Category monthly target:<br />
+        <input id="NewCategoryMonthlyAmount" name="NewCategoryMonthlyAmount" type="number"  min="0"  value="0" required >
+      </label>
+    </div>
+      <div>
+      <label for="NewEmergencyFund">Emergency Fund calculation:<br />
+        <select id="NewEmergencyFund" name="NewEmergencyFund" id="NewEmergencyFund">
+        </select>
+      </label>
+    </div>
+  </form>
+  <button id="submitbutton">Submit</button>
+  <span id="status" hidden="hidden">Loading, please wait...</span>
+</body>
+
+</html>
