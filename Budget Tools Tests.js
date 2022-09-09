@@ -1,4 +1,6 @@
-
+/**
+ * Pseudo Unit-level tests for the common functions in Budget Tools.
+ */
 var testRange;
 var testRangeFull;
 const testRangeStartRow = 2;

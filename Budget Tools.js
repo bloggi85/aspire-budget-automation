@@ -1,3 +1,12 @@
+/**
+ * This module registers new functionality to manage adding, renaming
+ *  and deleting of categories with Aspire Budget
+ */
+
+/**
+ * Register items in the menu bar
+ */
+
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Budget Tools')
@@ -7,6 +16,9 @@ function onOpen() {
     .addToUi();
 }
 
+/**
+ * Handling the menu option click events below
+ */
 function addCategoryModal() {
   var htmlDlg = HtmlService.createHtmlOutputFromFile('AddCategory.html')
     .setSandboxMode(HtmlService.SandboxMode.IFRAME)
@@ -35,8 +47,11 @@ function renameCategoryModal() {
 };
 
 
+/**
+ * Handle incoming requests and post submissions below
+ */
 
-
+// All category types
 function getCategoriesTypesList() {
   var spreadsheet = SpreadsheetApp.getActive();
   var categoryIcon = spreadsheet.getRangeByName("v_ReportableCategorySymbol").getValue();
@@ -64,6 +79,7 @@ function getCategoriesTypesList() {
   return categoryTypeList;
 }
 
+// All categories
 function getCategoriesList() {
   var spreadsheet = SpreadsheetApp.getActive();
   var configData = spreadsheet.getRangeByName("r_ConfigurationData");
@@ -78,6 +94,7 @@ function getCategoriesList() {
   return categoryList;
 }
 
+// Types of emergency fund status
 function getEmergencyFundTypesList() {
   return [
     ["✓", "✓ Include in Calculation"],
@@ -85,7 +102,7 @@ function getEmergencyFundTypesList() {
   ];
 }
 
-
+// Handle Rename Category form submit
 function handleRenameCategory(form) {
   var spreadsheet = SpreadsheetApp.getActive();
   
@@ -233,10 +250,17 @@ function handleDeleteCategory(form) {    // Select Sheet   var ss = SpreadsheetA
   return true;
 }
 
-/**
- * Helper functions below
- */
 
+/**
+ * Custom ranges that don't exist in Aspire
+ * Remove these when official ranges become available.
+ */
+function getConfigDataHiddenCategoriesRange_() {
+  var spreadsheet = SpreadsheetApp.getActive();
+  var configData = spreadsheet.getRangeByName("r_ConfigurationData");
+  var configSheet = configData.getSheet();
+  return configSheet.getRange("H42:H86");
+}
 function getTransactionsReportCategoryFilter_() {
   var spreadsheet = SpreadsheetApp.getActive();
   var transactionsData = spreadsheet.getRangeByName("trx_Accounts");
@@ -265,6 +289,11 @@ function getTrendReportsCategoryFilters_() {
   return categoryReportSheet.getRangeList(["B8", "B10", "B12", "B14", "B16", "B18", "B28:C28"]);
 }
 
+
+
+/**
+ * Helper functions below
+ */
 function getLastRowInDataRange_(range) {
   var lastDataRowIndex = range.getNextDataCell( SpreadsheetApp.Direction.DOWN).getRowIndex();
 
@@ -282,15 +311,6 @@ function getConfigDataCategoryNameColumnIndex_() {
   return configDataFirstColumn + 1;
 }
 
-// This is a work-around until a named range for the hidden categories exists
-function getConfigDataHiddenCategoriesRange_() {
-  var spreadsheet = SpreadsheetApp.getActive();
-  var configData = spreadsheet.getRangeByName("r_ConfigurationData");
-  var configSheet = configData.getSheet();
-  return configSheet.getRange("H42:H86");
-}
-
-
 function deleteRowFromRangeByShiftingRowsUp_(range, rowIndex) {
   var lastDataRowInRange = getLastRowInDataRange_(range);
   // Only shift items up if this isn't the last row.
@@ -304,8 +324,8 @@ function deleteRowFromRangeByShiftingRowsUp_(range, rowIndex) {
   Logger.log("Clearing the last item in the list.");
   lastDataRowInRange.clear();
   return;
-  // range.getSheet().getRange( rowToClear, range.getNumColumns(),1,range.getNumColumns()).setValue("");
 }
+
 function addDataIntoRangeAtRowNumber_(range, rowNumber, toInsert) {
   var sheet = range.getSheet();
   var rangeFirstColumn = range.getColumn();
@@ -325,7 +345,6 @@ function addDataIntoRangeAtRowNumber_(range, rowNumber, toInsert) {
     { contentsOnly: true }
   );
 
-
   // Insert new row under the one we found
   sheet.getRange(rowNumber, rangeFirstColumn, 1, toInsert[0].length).setValues(toInsert);
 }
@@ -344,6 +363,7 @@ function findInRange_(range, needle) {
   }
   return false;
 }
+
 function findInRangeAtColumnIndex_(range, needle, columnIndex) {
   var rangeToSearch = range.getSheet().getRange(range.getRowIndex(), columnIndex, range.getNumRows(), 1);
 
