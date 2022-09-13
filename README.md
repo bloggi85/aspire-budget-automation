@@ -2,6 +2,9 @@
 Automating simple tasks with the spreadsheet.
 
 # Goal
+The goal of this project is to make Aspire Budget easier to use.
+Aspire Budget is spreadsheet based and it is by default easy to modify. However, some tasks require you to be very careful how you go about them. For example, you cannot just remove a category once it's been used as it will skew your reports. You can't just rename a category in the configuration screen as it will break report screens, and even worse, break any transfers to/from that category.
+The Aspire Budget documentation explains this well and gives very detailed instruction on how to go about these types of changes. I've gone ahead and packed them into an add-on and added a simple interface. I found that by using this I do not lose my train of thought when going over my budget.
 ![All available automated features](/screenshots/1MenuOptions.png)
 
 
@@ -16,6 +19,7 @@ https://www.youtube.com/watch?v=GMy66SBKbjk
 ![Renaming category dialog](/screenshots/3RenameCategory.png)
 
 ## Delete category
-Deleting a category is relatively straight forward but can be distracting then you are following a train of thought or are in the middle of a conversation. Copy/pasting rows in the configuration screen and remembering to add the category to the hidden categories list. Instead, I've added a button that automates all lot of that.
+Deleting a category is relatively straight forward but can be distracting then you are following a train of thought or are in the middle of a conversation. Copy/pasting rows in the configuration screen and remembering to add the category to the hidden categories list. Instead, I've added a button that automates all lot of that. 
+See the documentation to learn about hidden categories: https://www.youtube.com/watch?v=7z3wddxxpCE
 ![Deleting a category dialog](/screenshots/4DeleteCategory.png)
 
