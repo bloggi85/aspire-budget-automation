@@ -167,7 +167,7 @@ function handleAddCategory(form) {
   var newCategoryMonthlyAmount = form.NewCategoryMonthlyAmount;
   var newCategoryAmount = form.NewCategoryAmount;
   var newEmergencyFund = form.NewEmergencyFund;;
-  var toInsert = [[newCategorySymbol, newCategoryName, newCategoryAmount, newCategoryMonthlyAmount, newEmergencyFund]];
+  var toInsert = [[newCategorySymbol, newCategoryName, newCategoryMonthlyAmount, newCategoryAmount, newEmergencyFund]];
 
   var spreadsheet = SpreadsheetApp.getActive();
   var configData = spreadsheet.getRangeByName("r_ConfigurationData");
