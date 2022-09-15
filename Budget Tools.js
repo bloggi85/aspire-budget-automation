@@ -13,6 +13,7 @@ function onOpen() {
     .addItem('Add category', 'addCategoryModal')
     .addItem('Rename category', 'renameCategoryModal')
     .addItem('Delete category', 'deleteCategoryModal')
+    .addItem('Import transactions', 'importTransactionsModal')
     .addToUi();
 }
 
@@ -44,6 +45,15 @@ function renameCategoryModal() {
 
   SpreadsheetApp.getUi()
     .showModalDialog(htmlDlg, 'Rename category');
+};
+
+function importTransactionsModal() {
+  var htmlDlg = HtmlService.createHtmlOutputFromFile('ImportTransactions.html')
+    .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+
+  SpreadsheetApp.getUi()
+    .showModalDialog(htmlDlg, 'Import transactions');
 };
 
 
@@ -100,6 +110,15 @@ function getEmergencyFundTypesList() {
     ["✓", "✓ Include in Calculation"],
     ["✕", "✕ Exclude from Calculation"]
   ];
+}
+
+function getDataImportTemplateList() {
+  var range = getDataImportTemplatesRange_();
+  var names = range.getSheet().getRange(range.getRowIndex(), range.getColumn(),range.getNumRows(),1).getValues();
+  var optionList = [];
+  return names.filter().forEach( function(val){
+    optionList.pop([val,val]);
+  });
 }
 
 // Handle Rename Category form submit
@@ -255,6 +274,14 @@ function handleDeleteCategory(form) {    // Select Sheet   var ss = SpreadsheetA
  * Custom ranges that don't exist in Aspire
  * Remove these when official ranges become available.
  */
+function getDataImportSheet_() {
+  return SpreadsheetApp.getSheetByName("Data Import");
+}
+function getDataImportTemplatesRange_() {
+  var dataImportSheet = getDataImportSheet_();
+  var lastRowIndex = dataImportSheet.getLastRow();
+  return dataImportSheet.getRange("A2:H" + lastRowIndex);
+}
 function getConfigDataHiddenCategoriesRange_() {
   var spreadsheet = SpreadsheetApp.getActive();
   var configData = spreadsheet.getRangeByName("r_ConfigurationData");
