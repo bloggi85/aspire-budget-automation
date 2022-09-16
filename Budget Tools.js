@@ -116,9 +116,12 @@ function getDataImportTemplateList() {
   var range = getDataImportTemplatesRange_();
   var names = range.getSheet().getRange(range.getRowIndex(), range.getColumn(),range.getNumRows(),1).getValues();
   var optionList = [];
-  return names.filter().forEach( function(val){
-    optionList.pop([val,val]);
+  names.forEach( function(val){
+      if (val.length > 0 && val[0] != "") {
+        optionList.push([val[0],val[0]]);
+      }
   });
+  return optionList;
 }
 
 // Handle Rename Category form submit
@@ -275,7 +278,7 @@ function handleDeleteCategory(form) {    // Select Sheet   var ss = SpreadsheetA
  * Remove these when official ranges become available.
  */
 function getDataImportSheet_() {
-  return SpreadsheetApp.getSheetByName("Data Import");
+  return SpreadsheetApp.getActive().getSheetByName("Data Import");
 }
 function getDataImportTemplatesRange_() {
   var dataImportSheet = getDataImportSheet_();
