@@ -91,8 +91,7 @@ function getCategoriesTypesList() {
 
 // All categories
 function getCategoriesList() {
-  var spreadsheet = SpreadsheetApp.getActive();
-  var configData = spreadsheet.getRangeByName("r_ConfigurationData");
+  var configData = getConfigDataRange();
   var categoryList = [];
   configData.getValues().forEach(function (val) {
     if (val[1] != "") {
@@ -147,7 +146,7 @@ function handleRenameCategory(form) {
     return;
   }
 
-  var configData = spreadsheet.getRangeByName("r_ConfigurationData");
+  var configData = getConfigDataRange();
   if (findInRangeAtColumnIndex_(configData, newCategoryName, getConfigDataCategoryNameColumnIndex_() ) != false ) {
     Logger.log("ERROR - Category '%s' already exists on the configuration sheet.", oldCategoryName);
     return;
@@ -196,8 +195,7 @@ function handleAddCategory(form) {
   var newEmergencyFund = form.NewEmergencyFund;;
   var toInsert = [[newCategorySymbol, newCategoryName, newCategoryMonthlyAmount, newCategoryAmount, newEmergencyFund]];
 
-  var spreadsheet = SpreadsheetApp.getActive();
-  var configData = spreadsheet.getRangeByName("r_ConfigurationData");
+  var configData = getConfigDataRange();
   var configSheet = configData.getSheet();
   var configDataFirstRow = configData.getRowIndex();
   var configDataLastRow = configData.getLastRow();
@@ -232,17 +230,13 @@ function handleDeleteCategory(form) {    // Select Sheet   var ss = SpreadsheetA
     return;
   }
 
-  var spreadsheet = SpreadsheetApp.getActive();
-  var configData = spreadsheet.getRangeByName("r_ConfigurationData");
-
-  // Find the last row within hidden categories that is empty.
-  var lastDataCellInRange = getLastRowInDataRange_(getConfigDataHiddenCategoriesRange_());
-
-  // Enure Hidden Categories range isn't full
-  if (lastDataCellInRange.getRowIndex() == getConfigDataHiddenCategoriesRange_().getLastRow()) {
+  
+  // Ensure Hidden Categories range isn't full
+  if ( isRangeFull_(getConfigDataHiddenCategoriesRange_())) {
     Logger.log("Error - the hidden categories range is full. Please clear some categories from the hidden categories range on the configuration sheet");
     return;
   }
+
   // Determine which row index needs to be removed.
   var rowIndexToRemove = findInRangeAtColumnIndex_(configData, categoryName, getConfigDataCategoryNameColumnIndex_());
 
@@ -251,11 +245,19 @@ function handleDeleteCategory(form) {    // Select Sheet   var ss = SpreadsheetA
     Logger.log("Error - the category '%s' could not be found in the configuration sheet.", categoryName);
     return false;
   }
+  
+  appendDataToRange_( getConfigDataHiddenCategoriesRange_(), [[categoryName]]);
+  var configData = getConfigDataRange();
+
+  // Find the last row within hidden categories that is not empty.
+  // var lastDataCellInRange = getLastRowInDataRange_(getConfigDataHiddenCategoriesRange_());
+
 
   // Add after the line we found. Adding 1
-  var toInsert = [[categoryName]];
-  Logger.log("Adding category '%s' to list of hidden categories", categoryName);
-  addDataIntoRangeAtRowNumber_(getConfigDataHiddenCategoriesRange_(), lastDataCellInRange.getRow() + 1, toInsert);
+  // var toInsert = [[categoryName]];
+  // var toInsertRowIndex = lastDataCellInRange.getRow() + 1
+  // Logger.log("Adding category '%s' to list of hidden categories at row %d.", categoryName, toInsertRowIndex );
+  // addDataIntoRangeAtRowNumber_(getConfigDataHiddenCategoriesRange_(), toInsertRowIndex, toInsert);
 
   // Delete the category from the config range by copying all following rows one line up.
   Logger.log("Deleting category '%s' from list of categories on config sheet.", categoryName);
@@ -290,9 +292,27 @@ function getDataImportTemplatesRange_() {
   var lastRowIndex = dataImportSheet.getLastRow();
   return dataImportSheet.getRange("A2:H" + lastRowIndex);
 }
-function getConfigDataHiddenCategoriesRange_() {
+function getConfigDataCategoryNameColumnIndex_() {
+  var configData = getConfigDataRange();
+  var configDataFirstColumn = configData.getColumn();
+  return configDataFirstColumn + 1;
+}
+// Congi data needs to inmclude the last column (include in emergency budget calculation)
+function getConfigDataRange() {
   var spreadsheet = SpreadsheetApp.getActive();
   var configData = spreadsheet.getRangeByName("r_ConfigurationData");
+  var newConfigData = spreadsheet
+    .getSheetByName(configData.getSheet().getName())
+    .getRange(
+      configData.getRowIndex(),
+      configData.getColumn(),
+      configData.getNumRows(),
+      configData.getNumColumns()+1
+    );
+  return newConfigData;
+}
+function getConfigDataHiddenCategoriesRange_() {
+  var configData = getConfigDataRange();
   var configSheet = configData.getSheet();
   return configSheet.getRange("H42:H86");
 }
@@ -339,27 +359,52 @@ function getLastRowInDataRange_(range) {
   return range.getSheet().getRange( lastDataRowIndex, range.getColumn(), 1, range.getNumColumns());
 }
 
-function getConfigDataCategoryNameColumnIndex_() {
-  var spreadsheet = SpreadsheetApp.getActive();
-  var configData = spreadsheet.getRangeByName("r_ConfigurationData");
-  var configDataFirstColumn = configData.getColumn();
-  return configDataFirstColumn + 1;
-}
 
 function deleteRowFromRangeByShiftingRowsUp_(range, rowIndex) {
   var lastDataRowInRange = getLastRowInDataRange_(range);
   // Only shift items up if this isn't the last row.
   if (lastDataRowInRange.getRowIndex() > rowIndex) {
-    Logger.log("Not deleting last row in range...Shifting rows up by 1");
+    Logger.log("Row is not last row in range..Shifting rows up by 1");
+    // range
+    //   .getSheet()
+    //   .getRange(rowIndex + 1, range.getColumn(), range.getLastRow() - rowIndex, range.getNumColumns())
+    //   .copyTo(range.getSheet().getRange(rowIndex, range.getColumn()));
     range
       .getSheet()
-      .getRange(rowIndex + 1, range.getColumn(), range.getLastRow() - rowIndex, range.getNumColumns())
-      .copyTo(range.getSheet().getRange(rowIndex, range.getColumn()));
+      .getRange(rowIndex, range.getColumn(), 1, range.getNumColumns())
+      .deleteCells(SpreadsheetApp.Dimension.ROWS);
   }
   Logger.log("Clearing the last item in the list.");
   lastDataRowInRange.clear();
   return;
 }
+
+function isRangeFull_(range) {
+  
+  // Find the last row within hidden categories that is not empty.
+  var lastDataCellInRange = getLastRowInDataRange_(range);
+
+  // Ensure Hidden Categories range isn't full
+  return lastDataCellInRange.getRowIndex() == range.getLastRow();
+}
+
+function appendDataToRange_(range,toInsert) {
+  var sheet = range.getSheet();
+  var rangeFirstColumn = range.getColumn();
+
+  if ( isRangeFull_(range) ) {
+    Logger.log("appendDataToRange_ Error - the range is full.");
+    return;
+  }
+
+  // Find the last row within hidden categories that is not empty.
+  
+  // Insert new row under the one we found
+  var lastDataCellInRange = getLastRowInDataRange_(range);
+  var toInsertRowIndex = lastDataCellInRange.getRow() + 1;
+  sheet.getRange(toInsertRowIndex, rangeFirstColumn, 1, toInsert[0].length).setValues(toInsert);
+}
+
 
 function addDataIntoRangeAtRowNumber_(range, rowNumber, toInsert) {
   var sheet = range.getSheet();
@@ -373,12 +418,10 @@ function addDataIntoRangeAtRowNumber_(range, rowNumber, toInsert) {
     return;
   }
 
+
   // copy all rows after the row we found down one row
-  var numRowsToCopy = rangeLastRow - rowNumber ;
-  sheet.getRange(rowNumber, rangeFirstColumn, numRowsToCopy, toInsert[0].length).copyTo(
-    sheet.getRange(rowNumber + 1, rangeFirstColumn, numRowsToCopy, toInsert[0].length),
-    { contentsOnly: true }
-  );
+  // Simply copy pasting rows will not include any cell comments
+  sheet.getRange(rowNumber, rangeFirstColumn, 1, toInsert[0].length).insertCells(SpreadsheetApp.Dimension.ROWS);
 
   // Insert new row under the one we found
   sheet.getRange(rowNumber, rangeFirstColumn, 1, toInsert[0].length).setValues(toInsert);

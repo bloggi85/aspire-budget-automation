@@ -36,7 +36,12 @@ const testRangeValues =     [
 
 function testAll(){
   testAddCategoryAssertAddedSuccessfully();
+  testAddCategoryAssertLastRowAddedSuccessfully();
   testAddCategoryAssertRangeFull();
+
+  testAppendToRangeAssertAppendedSuccessfully();
+  testAppendRangeAssertFullRangeAndNotAdded();
+
   testGetLastRowIndexInDataRange();
   testDeleteRowFromRangeByShiftingRowsUpAssertDeleteSuccess();
   testDeleteRowFromRangeByShiftingRowsUpAssertLastRowAndDeleteSuccess();
@@ -87,7 +92,7 @@ function testAddCategoryAssertAddedSuccessfully() {
     [ "B3", "C3", "D3","E3", "F3" ],
     [ "B4", "C4", "D4","E4", "F4" ],
     [ "B5", "C5", "D5","E5", "F5" ],
-    ["a", "b", "c", "d", "e"],
+    [ "b", "c", "d", "e", "f"],
     [ "B6", "C6", "D6","E6", "F6" ],
     [ "B7", "C7", "D7","E7", "F7" ],
     [ "B8", "C8", "D8","E8", "F8" ],
@@ -112,7 +117,7 @@ function testAddCategoryAssertAddedSuccessfully() {
   ];
 
   // Add after the row we found. Adding + 1
-  addDataIntoRangeAtRowNumber_(testRange, 6, [["a", "b", "c", "d", "e"]]);
+  addDataIntoRangeAtRowNumber_(testRange, 6, [[ "b", "c", "d", "e", "f"]]);
 
   var actualValues = testRange.getValues();
   var consecutiveFilledRows = 0;
@@ -123,16 +128,77 @@ function testAddCategoryAssertAddedSuccessfully() {
     for (var j = 0;j<actualValues[i].length;j++){ 
       // Any cell values we cannot predict should be blank
       if ( i >= expected.length ) {
-        assertEquals_("value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
+        assertEquals_("testAddCategoryAssertAddedSuccessfully - value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
       } else {
         // If within range of expected, the values need to match exactly
-        assertEquals_("value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
+        assertEquals_("testAddCategoryAssertAddedSuccessfully - value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
       }
     }
   }
 
   
-  assertEquals_("row numbers should match", expected.length, consecutiveFilledRows);
+  assertEquals_("testAddCategoryAssertAddedSuccessfully - row numbers should match", expected.length, consecutiveFilledRows);
+
+  tearDown_();
+
+}
+
+function testAddCategoryAssertLastRowAddedSuccessfully() {
+
+  setUp_();
+
+
+  var expected =  [
+    [ "B2", "C2", "D2","E2", "F2" ],
+    [ "B3", "C3", "D3","E3", "F3" ],
+    [ "B4", "C4", "D4","E4", "F4" ],
+    [ "B5", "C5", "D5","E5", "F5" ],
+    [ "B6", "C6", "D6","E6", "F6" ],
+    [ "B7", "C7", "D7","E7", "F7" ],
+    [ "B8", "C8", "D8","E8", "F8" ],
+    [ "B9", "C9", "D9","E9", "F9" ],
+    [ "B10", "C10", "D10","E10", "F10" ],
+    [ "B11", "C11", "D11","E11", "F11" ],
+    [ "B12", "C12", "D12","E12", "F12" ],
+    [ "B13", "C13", "D13","E13", "F13" ],
+    [ "B14", "C14", "D14","E14", "F14" ],
+    [ "B15", "C15", "D15","E15", "F15" ],
+    [ "B16", "C16", "D16","E16", "F16" ],
+    [ "B17", "C17", "D17","E17", "F17" ],
+    [ "B18", "C18", "D18","E18", "F18" ],
+    [ "B19", "C19", "D19","E19", "F19" ],
+    [ "B20", "C20", "D20","E20", "F20" ],
+    [ "B21", "C21", "D21","E21", "F21" ],
+    [ "B22", "C22", "D22","E22", "F22" ],
+    [ "B23", "C23", "D23","E23", "F23" ],
+    [ "B24", "C24", "D24","E24", "F24" ],
+    [ "B25", "C25", "D25","E25", "F25" ],
+    [ "B26", "C26", "D26","E26", "F26" ],
+    ["a", "b", "c", "d", "e"],
+  ];
+
+  // Add after the row we found. Adding + 1
+  addDataIntoRangeAtRowNumber_(testRange, 27, [["a", "b", "c", "d", "e"]]);
+
+  var actualValues = testRange.getValues();
+  var consecutiveFilledRows = 0;
+  for(var i = 0; i<actualValues.length;i++) {
+    if (actualValues[i][0] != "" || actualValues[i][1] != "" || actualValues[i][2] != "" || actualValues[i][3] != "") {
+      consecutiveFilledRows++;
+    }
+    for (var j = 0;j<actualValues[i].length;j++){ 
+      // Any cell values we cannot predict should be blank
+      if ( i >= expected.length ) {
+        assertEquals_("testAddCategoryAssertLastRowAddedSuccessfully - value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
+      } else {
+        // If within range of expected, the values need to match exactly
+        assertEquals_("testAddCategoryAssertLastRowAddedSuccessfully - value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
+      }
+    }
+  }
+
+  
+  assertEquals_("testAddCategoryAssertLastRowAddedSuccessfully - row numbers should match", expected.length, consecutiveFilledRows);
 
   tearDown_();
 
@@ -157,6 +223,67 @@ function testAddCategoryAssertRangeFull() {
     for (var j = 0;j<actualValues[i].length;j++){ 
       // Any cell values we cannot predict should be blank
       if ( i >= expected.length ) {
+        assertEquals_("testAddCategoryAssertRangeFull - value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
+      } else {
+        // If within range of expected, the values need to match exactly
+        assertEquals_("testAddCategoryAssertRangeFull - value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
+      }
+    }
+  }
+
+  
+  assertEquals_("testAddCategoryAssertRangeFull - row numbers should match", expected.length, consecutiveFilledRows);
+
+  tearDown_();
+
+}
+
+function testAppendToRangeAssertAppendedSuccessfully() {
+
+  setUp_();
+
+
+  var expected =  [
+    [ "B2", "C2", "D2","E2", "F2" ],
+    [ "B3", "C3", "D3","E3", "F3" ],
+    [ "B4", "C4", "D4","E4", "F4" ],
+    [ "B5", "C5", "D5","E5", "F5" ],
+    [ "B6", "C6", "D6","E6", "F6" ],
+    [ "B7", "C7", "D7","E7", "F7" ],
+    [ "B8", "C8", "D8","E8", "F8" ],
+    [ "B9", "C9", "D9","E9", "F9" ],
+    [ "B10", "C10", "D10","E10", "F10" ],
+    [ "B11", "C11", "D11","E11", "F11" ],
+    [ "B12", "C12", "D12","E12", "F12" ],
+    [ "B13", "C13", "D13","E13", "F13" ],
+    [ "B14", "C14", "D14","E14", "F14" ],
+    [ "B15", "C15", "D15","E15", "F15" ],
+    [ "B16", "C16", "D16","E16", "F16" ],
+    [ "B17", "C17", "D17","E17", "F17" ],
+    [ "B18", "C18", "D18","E18", "F18" ],
+    [ "B19", "C19", "D19","E19", "F19" ],
+    [ "B20", "C20", "D20","E20", "F20" ],
+    [ "B21", "C21", "D21","E21", "F21" ],
+    [ "B22", "C22", "D22","E22", "F22" ],
+    [ "B23", "C23", "D23","E23", "F23" ],
+    [ "B24", "C24", "D24","E24", "F24" ],
+    [ "B25", "C25", "D25","E25", "F25" ],
+    [ "B26", "C26", "D26","E26", "F26" ],
+    [ "a", "b", "c", "d", "e"],
+  ];
+
+  // Add after the row we found. Adding + 1
+  appendDataToRange_(testRange, [["a", "b", "c", "d", "e"]]);
+
+  var actualValues = testRange.getValues();
+  var consecutiveFilledRows = 0;
+  for(var i = 0; i<actualValues.length;i++) {
+    if (actualValues[i][0] != "" || actualValues[i][1] != "" || actualValues[i][2] != "" || actualValues[i][3] != "") {
+      consecutiveFilledRows++;
+    }
+    for (var j = 0;j<actualValues[i].length;j++){ 
+      // Any cell values we cannot predict should be blank
+      if ( i >= expected.length ) {
         assertEquals_("value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
       } else {
         // If within range of expected, the values need to match exactly
@@ -172,16 +299,48 @@ function testAddCategoryAssertRangeFull() {
 
 }
 
+function testAppendRangeAssertFullRangeAndNotAdded() {
+
+  setUp_();
 
 
+  // The range must not chan
+  var expected =  testRangeFull.getValues();
+
+  // Add after the row we found. Adding + 1
+  appendDataToRange_(testRangeFull,[["a", "b", "c", "d", "e"]]);
+
+  var actualValues = testRangeFull.getValues();
+  var consecutiveFilledRows = 0;
+  for(var i = 0; i<actualValues.length;i++) {
+    if (actualValues[i][0] != "" || actualValues[i][1] != "" || actualValues[i][2] != "" || actualValues[i][3] != "") {
+      consecutiveFilledRows++;
+    }
+    for (var j = 0;j<actualValues[i].length;j++){ 
+      // Any cell values we cannot predict should be blank
+      if ( i >= expected.length ) {
+        assertEquals_("testAppendRangeAssertFullRangeAndNotAdded - value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
+      } else {
+        // If within range of expected, the values need to match exactly
+        assertEquals_("testAppendRangeAssertFullRangeAndNotAdded - value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
+      }
+    }
+  }
+
+  
+  assertEquals_("testAppendRangeAssertFullRangeAndNotAdded - row numbers should match", expected.length, consecutiveFilledRows);
+
+  tearDown_();
+
+}
 function testGetLastRowIndexInDataRange() {
 
     
   setUp_();
 
   
-  assertEquals_("Row count does not match", testRangeStartRow + testRangeValues.length -1, getLastRowInDataRange_(testRange).getRowIndex() );
-  assertEquals_("Row count does not match in the full range", testRangeStartRow + testRangeValues.length -1, getLastRowInDataRange_(testRangeFull).getRowIndex() );
+  assertEquals_("testGetLastRowIndexInDataRange - Row count does not match", testRangeStartRow + testRangeValues.length -1, getLastRowInDataRange_(testRange).getRowIndex() );
+  assertEquals_("testGetLastRowIndexInDataRange - Row count does not match in the full range", testRangeStartRow + testRangeValues.length -1, getLastRowInDataRange_(testRangeFull).getRowIndex() );
 
   tearDown_();
 
@@ -232,15 +391,15 @@ function testDeleteRowFromRangeByShiftingRowsUpAssertDeleteSuccess() {
     for (var j = 0;j<actualValues[i].length;j++){ 
       // Any cell values we cannot predict should be blank
       if ( i >= expected.length ) {
-        assertEquals_("value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
+        assertEquals_("testDeleteRowFromRangeByShiftingRowsUpAssertDeleteSuccess - value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
       } else {
         // If within range of expected, the values need to match exactly
-        assertEquals_("value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
+        assertEquals_("testDeleteRowFromRangeByShiftingRowsUpAssertDeleteSuccess - value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
       }
     }
   }
 
-  assertEquals_("row numbers should match", expected.length, consecutiveFilledRows);
+  assertEquals_("testDeleteRowFromRangeByShiftingRowsUpAssertDeleteSuccess - row numbers should match", expected.length, consecutiveFilledRows);
 
   tearDown_();
 
@@ -292,15 +451,15 @@ function testDeleteRowFromRangeByShiftingRowsUpAssertLastRowAndDeleteSuccess() {
     for (var j = 0;j<actualValues[i].length;j++){ 
       // Any cell values we cannot predict should be blank
       if ( i >= expected.length ) {
-        assertEquals_("value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
+        assertEquals_("testDeleteRowFromRangeByShiftingRowsUpAssertLastRowAndDeleteSuccess - value in row " + i + " and col " + j + " should be empty", "",actualValues[i][j]);
       } else {
         // If within range of expected, the values need to match exactly
-        assertEquals_("value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
+        assertEquals_("testDeleteRowFromRangeByShiftingRowsUpAssertLastRowAndDeleteSuccess - value in row " + i + " and col " + j + " does not match", expected[i][j],actualValues[i][j]);
       }
     }
   }
 
-  assertEquals_("row numbers should match", expected.length, consecutiveFilledRows);
+  assertEquals_("testDeleteRowFromRangeByShiftingRowsUpAssertLastRowAndDeleteSuccess - row numbers should match", expected.length, consecutiveFilledRows);
 
   tearDown_();
 
@@ -313,12 +472,12 @@ function testFindCategoryAssertFound() {
   setUp_();
 
   
-  assertEquals_("Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn) );
-  assertEquals_("Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+1) );
-  assertEquals_("Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+2) );
-  assertEquals_("Wrong line number", 6, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+3) );
-  assertEquals_("Wrong line number (search is case insensitive)", 6, findInRangeAtColumnIndex_(testRange, "e6", testRangeStartColumn+3) );
-  assertEquals_("Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+4) );
+  assertEquals_("testFindCategoryAssertFound - Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn) );
+  assertEquals_("testFindCategoryAssertFound - Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+1) );
+  assertEquals_("testFindCategoryAssertFound - Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+2) );
+  assertEquals_("testFindCategoryAssertFound - Wrong line number", 6, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+3) );
+  assertEquals_("testFindCategoryAssertFound - Wrong line number (search is case insensitive)", 6, findInRangeAtColumnIndex_(testRange, "e6", testRangeStartColumn+3) );
+  assertEquals_("testFindCategoryAssertFound - Item does not exist", false, findInRangeAtColumnIndex_(testRange, "E6", testRangeStartColumn+4) );
 
 
   tearDown_();
