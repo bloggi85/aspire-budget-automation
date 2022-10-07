@@ -124,6 +124,11 @@ function getDataImportTemplateList() {
   return optionList;
 }
 
+// Handle import transaction submit
+function handleImportTransactions(form) {
+
+}
+
 // Handle Rename Category form submit
 function handleRenameCategory(form) {
   var spreadsheet = SpreadsheetApp.getActive();

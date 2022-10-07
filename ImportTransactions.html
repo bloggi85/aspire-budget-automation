@@ -29,7 +29,7 @@
       console.debug(form);
       google.script.run
         .withSuccessHandler(onSuccess)
-        .handleAddCategory(form);
+        .handleImportTransactions(form);
       } else {
         form.reportValidity();
       }
